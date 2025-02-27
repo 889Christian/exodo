@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Show - Perguntas e Respostas</title>
+    <style>
+
+	h1 {
+	background-color: #020b4d;
+	color: white;
+	margin: 0;
+	padding: 30px;
+	 }
+        body {
+	    padding: 10px 20px 30px 40px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0px;
+            background-color: #f0f8ff;
+            color: black;
+        }
+        .question-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 2px solid #87ceeb;
+            border-radius: 12px;
+            background-color: #ffffff;
+            max-width: 600px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+	    font-weight: bold;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #87ceeb;
+            color: black;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #4682b4;
+        }
+        #answers button {
+            display: block;
+            margin: 10px auto;
+            width: 80%;
+        }
+        #answers button.selected {
+            background-color: #32cd32;
+            color: black;
+            font-weight: bold;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffdddd;
+            padding: 40px;
+            border: 4px solid #ff0000;
+            border-radius: 24px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        #final-stats {
+            display: none;
+            margin-top: 20px;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste Bíblico - Livro de Êxodo</h1>
+
+    <div id="stats">
+        <p>Corretas: <span id="correctCount">0</span></p>
+        <p>Incorretas: <span id="wrongCount">0</span></p>
+        <p>Pendentes: <span id="pendingCount"></span></p>
+    </div>
+
+    <div class="question-container">
+        <p id="question"></p>
+        <div id="answers"></div>
+    </div>
+
+    <p id="reference"></p>
+    <p id="message"></p>
+
+    <button id="confirmButton">Confirmar Resposta</button>
+    <button id="nextButton">Próxima Pergunta</button>
+
+    <div id="popup">
+        <p>Leia mais a Bíblia!</p>
+        <button onclick="closePopup()">Fechar</button>
+    </div>
+
+    <div id="final-stats">
+        <h2>Resultados Finais</h2>
+        <p id="final-message"></p>
+        <p>Total de Corretas: <span id="finalCorrect"></span></p>
+        <p>Total de Incorretas: <span id="finalWrong"></span></p>
+    </div>
+
+    <script>
+        const questions = 
+[
+	
+  { "question": "Por que os israelitas foram oprimidos no Egito?", "answers": ["Porque se tornaram mais numerosos e fortes que os egípcios.", "Porque Moisés pediu ao faraó que os escravizasse.", "Porque os egípcios os acolheram como estrangeiros.", "Porque estavam conquistando terras egípcias."], "correct": "Porque se tornaram mais numerosos e fortes que os egípcios.", "reference": "Êxodo 1:9" },
+  { "question": "Como as parteiras hebreias responderam à ordem de matar os bebês meninos?", "answers": ["Elas obedeceram ao faraó.", "Elas mentiram, dizendo que as mulheres hebreias davam à luz antes de sua chegada.", "Elas fugiram para outro país.", "Elas pediram permissão aos sacerdotes egípcios para salvar os bebês."], "correct": "Elas mentiram, dizendo que as mulheres hebreias davam à luz antes de sua chegada.", "reference": "Êxodo 1:19" },
+  { "question": "O que a mãe de Moisés fez para protegê-lo da ordem do faraó?", "answers": ["Escondeu-o em um celeiro.", "Levou-o ao palácio do faraó.", "Colocou-o em um cesto no rio Nilo.", "Enviou-o para outra terra."], "correct": "Colocou-o em um cesto no rio Nilo.", "reference": "Êxodo 2:3" },
+  { "question": "Quem encontrou Moisés no rio e o adotou?", "answers": ["A mulher do faraó.", "A filha do faraó.", "Uma sacerdotisa egípcia.", "Uma serva do palácio."], "correct": "A filha do faraó.", "reference": "Êxodo 2:5-10" },
+  { "question": "Como Deus apareceu a Moisés no monte Horebe?", "answers": ["Em um sonho.", "Como um anjo com uma espada.", "Em uma sarça ardente.", "Como uma voz no vento."], "correct": "Em uma sarça ardente.", "reference": "Êxodo 3:2" },
+  { "question": "Qual missão Deus deu a Moisés?", "answers": ["Construir um templo no deserto.", "Libertar os israelitas do Egito.", "Ensinar os mandamentos ao povo.", "Formar um exército para lutar contra o faraó."], "correct": "Libertar os israelitas do Egito.", "reference": "Êxodo 3:10" },
+  { "question": "O que Deus deu a Moisés para provar sua autoridade ao povo?", "answers": ["Uma coroa real.", "Três sinais milagrosos.", "Uma espada brilhante.", "Um pergaminho sagrado."], "correct": "Três sinais milagrosos.", "reference": "Êxodo 4:3-9" },
+  { "question": "Quem Deus enviou para ajudar Moisés a falar com o faraó?", "answers": ["Josué.", "Arão.", "Caleb.", "Jetro."], "correct": "Arão.", "reference": "Êxodo 4:14-16" },
+  { "question": "O que Moisés e Arão pediram ao faraó?","answers": ["Que deixasse os israelitas irem ao deserto para adorar a Deus.", "Que libertasse todos os escravos imediatamente.", "Que desse mais comida aos israelitas.", "Que aceitasse a Deus como único Senhor."],"correct": "Que deixasse os israelitas irem ao deserto para adorar a Deus.","reference": "Êxodo 5:1"},
+  { "question": "Como o faraó reagiu ao pedido de Moisés e Arão?","answers": ["Concordou e libertou os israelitas.", "Pediu um sinal para provar que Deus existia.", "Aumentou o fardo dos israelitas, mandando que fizessem tijolos sem palha.", "Ofereceu a Moisés um cargo no governo egípcio."],"correct": "Aumentou o fardo dos israelitas, mandando que fizessem tijolos sem palha.","reference": "Êxodo 5:6-9"},
+  {"question":"O que Deus prometeu a Moisés sobre os israelitas?","answers":["Que ficariam no Egito para sempre","Que seriam libertos e levados à Terra Prometida","Que receberiam uma nova lei no Egito","Que fariam uma aliança com o faraó"],"correct":"Que seriam libertos e levados à Terra Prometida","reference":"Êxodo 6:6-8"},
+{"question":"Quem era o irmão mais velho, Moisés ou Arão?","answers":["Moisés","Arão","Eram gêmeos","Nenhum dos dois, pois não eram irmãos"],"correct":"Arão","reference":"Êxodo 6:20"},
+{"question":"Qual foi o primeiro sinal que Moisés e Arão fizeram diante do faraó?","answers":["O rio Nilo se transformou em sangue","A vara de Arão se transformou em serpente","Surgiram rãs em toda a terra do Egito","A terra do Egito foi coberta de trevas"],"correct":"A vara de Arão se transformou em serpente","reference":"Êxodo 7:10-12"},
+{"question":"Como os magos do Egito responderam ao primeiro sinal?","answers":["Também transformaram suas varas em serpentes","Se curvaram e adoraram Deus","Fugiram do palácio","Se recusaram a acreditar"],"correct":"Também transformaram suas varas em serpentes","reference":"Êxodo 7:11-12"},
+{"question":"Qual foi a segunda praga que Deus enviou sobre o Egito?","answers":["Moscas","Rãs","Gafanhotos","Tumores"],"correct":"Rãs","reference":"Êxodo 8:2-6"},
+{"question":"O que aconteceu quando Moisés orou pelo fim das rãs?","answers":["Elas desapareceram instantaneamente","Foram levadas por um vento forte","Morreram e ficaram acumuladas em montes pelo Egito","Se transformaram em pó"],"correct":"Morreram e ficaram acumuladas em montes pelo Egito","reference":"Êxodo 8:13-14"},
+{"question":"Qual praga matou os animais dos egípcios?","answers":["Saraiva","Ulcerações","Peste","Trevas"],"correct":"Peste","reference":"Êxodo 9:3-6"},
+{"question":"Que praga causou feridas nos egípcios e seus animais?","answers":["Rãs","Moscas","Úlceras","Gafanhotos"],"correct":"Úlceras","reference":"Êxodo 9:8-10"},
+{"question":"Qual foi a oitava praga enviada ao Egito?","answers":["Trevas","Moscas","Gafanhotos","Ulcerações"],"correct":"Gafanhotos","reference":"Êxodo 10:12-15"},
+{"question":"O que cobriu a terra do Egito por três dias?","answers":["Cinzas","Trevas densas","Poeira do deserto","Fumaça de um vulcão"],"correct":"Trevas densas","reference":"Êxodo 10:21-23"},
+{"question":"Qual foi a última praga enviada ao Egito?","answers":["Morte dos primogênitos","Trevas","Saraiva","Gafanhotos"],"correct":"Morte dos primogênitos","reference":"Êxodo 11:4-6"},
+{"question":"Quem seria poupado da última praga?","answers":["Somente os sacerdotes egípcios","Somente os primogênitos que fugissem","Todos que tivessem sangue de cordeiro nas portas","Apenas os filhos de Moisés e Arão"],"correct":"Todos que tivessem sangue de cordeiro nas portas","reference":"Êxodo 12:7, 12-13"},
+{"question":"Como os israelitas deveriam marcar suas casas para escapar da morte dos primogênitos?","answers":["Com uma faixa vermelha na porta","Com sangue de cordeiro nos umbrais das portas","Com um sinal desenhado com óleo","Com ramos de oliveira"],"correct":"Com sangue de cordeiro nos umbrais das portas","reference":"Êxodo 12:7"},
+{"question":"Como os israelitas deveriam comer a Páscoa?","answers":["Sentados em círculo e em silêncio","Em pé, com os lombos cingidos, sandálias nos pés e cajado na mão","Deitados em esteiras, como no costume egípcio","Somente após o pôr do sol"],"correct":"Em pé, com os lombos cingidos, sandálias nos pés e cajado na mão","reference":"Êxodo 12:11"},
+{"question":"O que Deus usou para guiar os israelitas pelo deserto?","answers":["Uma bússola e um mapa","Uma nuvem de dia e uma coluna de fogo à noite","Um anjo visível","Raios e trovões"],"correct":"Uma nuvem de dia e uma coluna de fogo à noite","reference":"Êxodo 13:21-22"},
+{"question":"O que os israelitas deveriam consagrar ao Senhor?","answers":["Suas casas","Todo primogênito, tanto de homens quanto de animais","Seus pertences mais valiosos","Todos os seus rebanhos"],"correct":"Todo primogênito, tanto de homens quanto de animais","reference":"Êxodo 13:2"},
+{"question":"Como os israelitas atravessaram o Mar Vermelho?","answers":["Caminharam sobre as águas","Deus abriu um caminho no mar, dividindo as águas","Foram carregados por anjos","Usaram barcos fornecidos por Deus"],"correct":"Deus abriu um caminho no mar, dividindo as águas","reference":"Êxodo 14:21-22"},
+{"question":"O que aconteceu com o exército do faraó quando tentou atravessar o mar?","answers":["Conseguiu atravessar e perseguiu os israelitas","Ficou paralisado na margem","Foi coberto pelas águas quando o mar voltou ao normal","Se perdeu no deserto antes de chegar ao mar"],"correct":"Foi coberto pelas águas quando o mar voltou ao normal","reference":"Êxodo 14:27-28"},
+{"question":"O que Moisés e os israelitas fizeram após atravessar o Mar Vermelho?","answers":["Construíram um altar ao Senhor","Cantaram um cântico de louvor a Deus","Começaram a coletar maná","Retornaram ao Egito para buscar mais pessoas"],"correct":"Cantaram um cântico de louvor a Deus","reference":"Êxodo 15:1-21"},
+{"question":"Qual foi o milagre realizado em Mara?","answers":["Deus transformou águas amargas em água potável","Moisés encontrou um poço escondido","O maná começou a cair do céu","Deus enviou codornizes para o povo comer"],"correct":"Deus transformou águas amargas em água potável","reference":"Êxodo 15:25"},
+{"question":"O que Deus enviou para alimentar os israelitas no deserto?","answers":["Peixes e frutas","Maná e codornizes","Pães assados e vinho","Trigo e tâmaras"],"correct":"Maná e codornizes","reference":"Êxodo 16:13-15"},
+{"question":"Quanto maná cada pessoa deveria recolher diariamente?","answers":["O quanto quisesse","Dez medidas por família","Um ômer por pessoa","Duas medidas para cada adulto"],"correct":"Um ômer por pessoa","reference":"Êxodo 16:16"},
+{"question":"Como Moisés fez água sair da rocha em Horebe?","answers":["Tocou na rocha com sua vara","Orando por sete dias","Cavando até encontrar uma fonte","Jogando sal sobre a pedra"],"correct":"Tocou na rocha com sua vara","reference":"Êxodo 17:6"},
+{"question":"Como os israelitas venceram a batalha contra Amaleque?","answers":["Formaram um grande exército com espadas","Moisés levantava suas mãos com o cajado, e Josué liderava a luta","Deus enviou fogo do céu contra os inimigos","Fizeram uma emboscada à noite"],"correct":"Moisés levantava suas mãos com o cajado, e Josué liderava a luta","reference":"Êxodo 17:11-13"},
+{"question":"Quem aconselhou Moisés a delegar tarefas para outros líderes?","answers":["Arão","Jetro, seu sogro","Josué","Um anjo do Senhor"],"correct":"Jetro, seu sogro","reference":"Êxodo 18:17-23"},
+{"question":"O que Moisés fez após ouvir o conselho de Jetro?","answers":["Continuou resolvendo todos os problemas sozinho","Nomeou líderes para ajudá-lo a julgar o povo","Mandou Jetro voltar para sua terra","Construíram um altar em homenagem a Jetro"],"correct":"Nomeou líderes para ajudá-lo a julgar o povo","reference":"Êxodo 18:24-26"},
+{"question":"O que Deus disse que Israel seria se obedecesse à Sua aliança?","answers":["Um povo comum como os outros","Um reino de sacerdotes e uma nação santa","Um povo de guerreiros fortes","Escravos de Deus para sempre"],"correct":"Um reino de sacerdotes e uma nação santa","reference":"Êxodo 19:5-6"},
+{"question":"O que aconteceu no Monte Sinai antes de Deus falar com Moisés?","answers":["O monte pegou fogo, houve trovões e um forte som de trombeta","O monte se partiu em dois","O povo viu um anjo gigante descendo do céu","Um terremoto fez com que o monte afundasse no mar"],"correct":"O monte pegou fogo, houve trovões e um forte som de trombeta","reference":"Êxodo 19:16-18"},
+{"question":"Qual foi o primeiro mandamento dado por Deus?","answers":["Não matarás","Amarás o próximo como a ti mesmo","Não terás outros deuses diante de mim","Não cobiçarás"],"correct":"Não terás outros deuses diante de mim","reference":"Êxodo 20:3"},
+{"question":"O que o povo pediu a Moisés depois que ouviram Deus falar?","answers":["Que ele falasse com Deus no lugar deles, pois estavam com medo","Que Deus falasse mais alto","Que eles mesmos pudessem subir ao monte","Que Moisés construísse um templo imediatamente"],"correct":"Que ele falasse com Deus no lugar deles, pois estavam com medo","reference":"Êxodo 20:19"},
+{"question":"O que acontecia se um escravo hebreu quisesse continuar servindo seu senhor após seis anos de serviço?","answers":["Era libertado à força","Sua orelha era furada como sinal de compromisso","Deveria pagar para continuar como escravo","Era enviado para outra cidade"],"correct":"Sua orelha era furada como sinal de compromisso","reference":"Êxodo 21:6"},
+{"question":"Qual era a penalidade para quem ferisse mortalmente outra pessoa de forma intencional?","answers":["Teria que pagar uma multa","Seria expulso do acampamento","Seria morto","Seria açoitado publicamente"],"correct":"Seria morto","reference":"Êxodo 21:12"},
+{"question":"O que deveria ser feito com alguém que roubasse um boi ou uma ovelha e os matasse ou vendesse?","answers":["Seria condenado à morte","Teria que pagar cinco bois por um boi e quatro ovelhas por uma ovelha","Deveria ser expulso da comunidade","Precisaria trabalhar para o dono do animal"],"correct":"Teria que pagar cinco bois por um boi e quatro ovelhas por uma ovelha","reference":"Êxodo 22:1"},
+{"question":"O que Deus ordenou sobre o tratamento aos estrangeiros?","answers":["Deveriam ser explorados","Deveriam ser tratados como irmãos","Não poderiam viver entre os israelitas","Deveriam pagar mais impostos"],"correct":"Deveriam ser tratados como irmãos","reference":"Êxodo 22:21"},
+{"question":"Qual foi a promessa de Deus caso os israelitas obedecessem aos Seus mandamentos?","answers":["Prosperidade e proteção contra seus inimigos","Um reino eterno na terra de Canaã","Chuva abundante todos os dias","Imortalidade para os sacerdotes"],"correct":"Prosperidade e proteção contra seus inimigos","reference":"Êxodo 23:22-25"},
+{"question":"Quantas vezes ao ano todo homem israelita deveria comparecer diante do Senhor?","answers":["Uma vez","Duas vezes","Três vezes","Cinco vezes"],"correct":"Três vezes","reference":"Êxodo 23:14"},
+{"question":"O que Moisés aspergiu sobre o povo ao confirmar a aliança?","answers":["Água do rio Jordão","Sangue dos sacrifícios","Óleo sagrado","Cinzas de um cordeiro queimado"],"correct":"Sangue dos sacrifícios","reference":"Êxodo 24:8"},
+{"question":"Quem subiu com Moisés até parte do Monte Sinai?","answers":["Arão, Nadabe, Abiú e setenta anciãos de Israel","Apenas Josué","Toda a congregação de Israel","Nenhum outro além de Moisés"],"correct":"Arão, Nadabe, Abiú e setenta anciãos de Israel","reference":"Êxodo 24:9-10"},
+{"question":"Qual era o material principal da Arca da Aliança?","answers":["Prata","Bronze","Madeira de acácia coberta de ouro","Pedra pura"],"correct":"Madeira de acácia coberta de ouro","reference":"Êxodo 25:10-11"},
+{"question":"O que ficava sobre a tampa da Arca da Aliança?","answers":["Duas coroas de ouro","Duas estátuas de Moisés e Arão","Dois querubins de ouro","Uma lâmpada sagrada"],"correct":"Dois querubins de ouro","reference":"Êxodo 25:18-20"},
+{"question":"Com que tecido era feito o véu do tabernáculo?","answers":["Linho branco puro","Pano de saco","Linho fino azul, púrpura e carmesim com querubins bordados","Couro de carneiro tingido de vermelho"],"correct":"Linho fino azul, púrpura e carmesim com querubins bordados","reference":"Êxodo 26:31"},
+{"question":"Qual era a função do véu dentro do tabernáculo?","answers":["Separava o Santo Lugar do Santo dos Santos","Protegia o altar dos sacrifícios","Servia como entrada principal","Era usado para cobrir a Arca da Aliança"],"correct":"Separava o Santo Lugar do Santo dos Santos","reference":"Êxodo 26:33"},
+{"question":"De que material era feito o altar dos holocaustos?","answers":["Ouro puro","Madeira de acácia coberta de bronze","Pedra esculpida","Ferro maciço"],"correct":"Madeira de acácia coberta de bronze","reference":"Êxodo 27:1-2"},
+{"question":"O que deveria arder continuamente no tabernáculo?","answers":["O incenso especial","A lâmpada com azeite puro","As brasas do altar","A chama no Santo dos Santos"],"correct":"A lâmpada com azeite puro","reference":"Êxodo 27:20"},
+{"question":"O que ficava no peitoral do sumo sacerdote?","answers":["O nome de Moisés gravado em ouro","Doze pedras preciosas representando as tribos de Israel","Uma pequena réplica da Arca da Aliança","Um selo sagrado de bronze"],"correct":"Doze pedras preciosas representando as tribos de Israel","reference":"Êxodo 28:17-21"},
+{"question":"Como era chamado o objeto sagrado usado para tomar decisões diante de Deus?","answers":["Candelabro de ouro","Urim e Tumim","Vara de Arão","Tenda da Congregação"],"correct":"Urim e Tumim","reference":"Êxodo 28:30"},
+{"question":"Qual era a oferta de consagração para os sacerdotes?","answers":["Um cordeiro sem defeito","Um bezerro e dois carneiros","Pombas e farinha","Ouro e prata"],"correct":"Um bezerro e dois carneiros","reference":"Êxodo 29:1"},
+{"question":"Por quantos dias deveria durar a consagração dos sacerdotes?","answers":["Três dias","Sete dias","Um mês","Quarenta dias"],"correct":"Sete dias","reference":"Êxodo 29:35"},
+{"question":"Qual era a função do altar do incenso?","answers":["Queimar incenso aromático diante do Senhor","Queimar os sacrifícios diários","Ser usado para purificação de pecados","Servir como mesa para o pão da proposição"],"correct":"Queimar incenso aromático diante do Senhor","reference":"Êxodo 30:1"},
+{"question":"Qual era o propósito do dinheiro do resgate?","answers":["Para a manutenção do tabernáculo","Para pagar os sacerdotes","Para comprar incenso","Para dar aos pobres"],"correct":"Para a manutenção do tabernáculo","reference":"Êxodo 30:16"},
+{"question":"Quem foi escolhido por Deus para trabalhar na construção do tabernáculo?","answers":["Bezalel e Aoliabe","Moisés e Arão","Nadabe e Abiú","Josué e Calebe"],"correct":"Bezalel e Aoliabe","reference":"Êxodo 31:2-6"},
+{"question":"Qual foi a principal ordenança de Deus sobre o sábado?","answers":["Deveria ser um dia santo e de descanso","Apenas os sacerdotes deveriam guardar","Seria um dia de jejum absoluto","O trabalho era permitido para emergências"],"correct":"Deveria ser um dia santo e de descanso","reference":"Êxodo 31:14-15"},
+{"question":"O que Arão fez enquanto Moisés estava no monte?","answers":["Conduziu o povo à oração","Fez um bezerro de ouro para que o povo adorasse","Levantou um altar a Deus","Destruiu todos os ídolos do Egito"],"correct":"Fez um bezerro de ouro para que o povo adorasse","reference":"Êxodo 32:4"},
+{"question":"Como Moisés reagiu ao ver o povo adorando o bezerro de ouro?","answers":["Louvou ao Senhor pela criatividade do povo","Quebrou as tábuas da lei e destruiu o bezerro","Abençoou o bezerro como símbolo de prosperidade","Construiu um templo para guardá-lo"],"correct":"Quebrou as tábuas da lei e destruiu o bezerro","reference":"Êxodo 32:19-20"},
+{"question": "O que Moisés pediu a Deus no monte?", "answers": ["Que Deus lhe mostrasse Sua glória", "Que Deus destruísse os inimigos de Israel", "Que Deus fizesse chover maná novamente", "Que ele nunca morresse"], "correct": "Que Deus lhe mostrasse Sua glória", "reference": "Êxodo 33:18"},
+{"question": "Como Deus respondeu ao pedido de Moisés?", "answers": ["Permitiu que ele visse Suas costas, mas não Seu rosto", "Apareceu na forma de uma pomba", "Enviou um anjo em Seu lugar", "Falou apenas através de trovões"], "correct": "Permitiu que ele visse Suas costas, mas não Seu rosto", "reference": "Êxodo 33:20-23"},
+{"question":"O que Moisés pediu a Deus ao voltar ao monte Sinai?","answers":["Que Deus mostrasse Sua glória","Que Deus destruísse os israelitas","Que Deus desse novas tábuas da lei","Que Deus falasse diretamente com o povo"],"correct":"Que Deus mostrasse Sua glória","reference":"Êxodo 34:6-7"},
+{"question":"Como ficou o rosto de Moisés ao descer do monte?","answers":["Estava pálido e assustado","Brilhava por ter estado na presença de Deus","Estava queimado pelo sol do deserto","Não havia nenhuma mudança visível"],"correct":"Brilhava por ter estado na presença de Deus","reference":"Êxodo 34:29-30"},
+{"question":"O que Deus ordenou ao povo antes de iniciar a construção do tabernáculo?","answers":["Que guardassem o sábado","Que jejuassem por sete dias","Que preparassem o exército","Que fizessem uma grande festa"],"correct":"Que guardassem o sábado","reference":"Êxodo 35:2"},
+	{"question":"Como o povo contribuiu para a construção do tabernáculo?","answers":["Trouxeram ofertas voluntárias de ouro, prata e tecidos","Foram obrigados a dar metade de seus bens","Apenas os sacerdotes contribuíram","Pegaram empréstimos dos egípcios"],"correct":"Trouxeram ofertas voluntárias de ouro, prata e tecidos","reference":"Êxodo 35:21-22"},
+	{"question":"O que aconteceu quando o povo trouxe ofertas para o tabernáculo?","answers":["Trouxeram tanto que Moisés precisou pedir que parassem","Faltaram materiais para a construção","Apenas metade do povo contribuiu","O ouro foi usado para fazer outro bezerro"],"correct":"Trouxeram tanto que Moisés precisou pedir que parassem","reference":"Êxodo 36:5-7"},
+	{"question":"Como eram as cortinas do tabernáculo?","answers":["Feitas de linho fino azul, púrpura e carmesim com querubins bordados","De couro de ovelha tingido de vermelho","Feitas de lã branca pura","De linho simples sem detalhes"],"correct":"Feitas de linho fino azul, púrpura e carmesim com querubins bordados","reference":"Êxodo 36:8"},
+	{"question":"O que ficava dentro da Arca da Aliança?","answers":["As tábuas da Lei","O cajado de Moisés","Apenas uma lâmpada sagrada","Roupas dos sacerdotes"],"correct":"As tábuas da Lei","reference":"Êxodo 37:1"},
+	{"question":"De que material foi feito o candelabro do tabernáculo?","answers":["Ouro puro","Prata refinada","Madeira revestida de ouro","Bronze polido"],"correct":"Ouro puro","reference":"Êxodo 37:17"},
+	{"question":"Qual era a principal função da bacia de bronze?","answers":["Os sacerdotes lavavam mãos e pés antes do serviço","Para armazenar o azeite da lâmpada","Para guardar os incensos","Para cozinhar os pães da proposição"],"correct":"Os sacerdotes lavavam mãos e pés antes do serviço","reference":"Êxodo 38:8"},
+	{"question":"De onde veio o bronze usado na bacia?","answers":["Dos espelhos das mulheres que serviam à entrada da tenda","De moedas derretidas","De presentes trazidos por estrangeiros","Do despojo de guerra"],"correct":"Dos espelhos das mulheres que serviam à entrada da tenda","reference":"Êxodo 38:8"},
+	{"question":"Qual era a cor predominante nas vestes do sumo sacerdote?","answers":["Azul","Vermelho","Verde","Branco"],"correct":"Azul","reference":"Êxodo 39:1"},
+	{"question":"O que estava escrito na lâmina de ouro da mitra do sumo sacerdote?","answers":["Santidade ao Senhor","Poder e Glória","Rei dos reis","Arão, servo de Deus"],"correct":"Santidade ao Senhor","reference":"Êxodo 39:30"},
+	{"question":"O que foi colocado dentro da arca da aliança?","answers":["As tábuas da lei, o maná e a vara de Arão","Ouro e prata do Egito","Um incenso especial","Um pergaminho com os nomes dos israelitas"],"correct":"As tábuas da lei, o maná e a vara de Arão","reference":"Êxodo 40:20"},
+	{"question":"Como Deus mostrou Sua presença no tabernáculo?","answers":["Por meio de uma nuvem de dia e fogo à noite","Através de trovões constantes","Enviando um anjo para falar com Moisés","Fazendo o tabernáculo flutuar no ar"],"correct":"Por meio de uma nuvem de dia e fogo à noite","reference":"Êxodo 40:34-38"}		
+			]; 
+
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let pendingCount = questions.length;
+        
+        const shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+
+        function updateStats() {
+            document.getElementById("correctCount").innerText = correctCount;
+            document.getElementById("wrongCount").innerText = wrongCount;
+            document.getElementById("pendingCount").innerText = pendingCount;
+        }
+
+        function loadQuestion() {
+            const questionData = shuffledQuestions[currentQuestionIndex];
+            document.getElementById("question").innerText = questionData.question;
+            document.getElementById("reference").innerText = "";
+            document.getElementById("message").innerText = "";
+            const answersContainer = document.getElementById("answers");
+            answersContainer.innerHTML = "";
+
+            questionData.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerText = answer;
+                button.onclick = () => selectAnswer(button);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedButton) {
+            const buttons = document.querySelectorAll("#answers button");
+            buttons.forEach(button => button.classList.remove("selected"));
+            selectedButton.classList.add("selected");
+        }
+
+        function confirmAnswer() {
+            const selectedButton = document.querySelector("#answers button.selected");
+            if (!selectedButton) {
+                alert("Por favor, selecione uma resposta!");
+                return;
+            }
+
+            const selectedAnswer = selectedButton.innerText;
+            const questionData = shuffledQuestions[currentQuestionIndex];
+
+            if (selectedAnswer === questionData.correct) {
+                correctCount++;
+                document.getElementById("message").innerText = `Certa Resposta! Referência: (${questionData.reference}).`;
+                document.getElementById("message").style.color = "green";
+            } else {
+                wrongCount++;
+                document.getElementById("message").innerText = `Resposta errada! A correta é "${questionData.correct}" (${questionData.reference}).`;
+                document.getElementById("message").style.color = "red";
+                document.getElementById("popup").style.display = "block";
+            }
+
+            
+            pendingCount--;
+            updateStats();
+
+            document.getElementById("confirmButton").disabled = true;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                document.getElementById("confirmButton").disabled = false;
+            } else {
+                showFinalStats();
+            }
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+
+        function showFinalStats() {
+            const finalMessage = document.getElementById("final-message");
+            const finalCorrect = document.getElementById("finalCorrect");
+            const finalWrong = document.getElementById("finalWrong");
+
+            finalCorrect.innerText = correctCount;
+            finalWrong.innerText = wrongCount;
+
+            if (correctCount > wrongCount) {
+                finalMessage.innerText = "Parabéns! Você está acima da média!";
+            } else {
+                finalMessage.innerText = "Leia mais a Bíblia!";
+            }
+
+            document.getElementById("final-stats").style.display = "block";
+        }
+
+        document.getElementById("confirmButton").addEventListener("click", confirmAnswer);
+        document.getElementById("nextButton").addEventListener("click", nextQuestion);
+
+        updateStats();
+        loadQuestion();
+    </script>
+</body>
+</html>
